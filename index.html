@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For You My Love</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Great+Vibes&family=Parisienne&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            background-image: url('BACKGROUND.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            touch-action: manipulation;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,107,129,0.1) 0%, rgba(255,71,87,0.15) 100%);
+            backdrop-filter: blur(2px);
+        }
+        
+        .love-container {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            opacity: 0;
+            pointer-events: none;
+            text-align: center;
+            filter: drop-shadow(0 0 8px rgba(0,0,0,0.2));
+        }
+        
+        .love-message {
+            font-weight: bold;
+            white-space: nowrap;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .heart-trail {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .active {
+            opacity: 1;
+            animation: heartbeat 1.2s both, float 4s ease-in-out infinite 1s;
+        }
+        
+        .fading {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.8);
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            30% { transform: translate(-50%, -50%) scale(1.1); }
+            40% { transform: translate(-50%, -50%) scale(0.9); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            60% { transform: translate(-50%, -50%) scale(0.95); }
+            70% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+            50% { transform: translate(-50%, -50%) translateY(-20px); }
+        }
+        
+        @keyframes heartFloat {
+            0% { 
+                opacity: 1;
+                transform: translate(0, 0) rotate(0deg);
+            }
+            100% { 
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) rotate(360deg);
+            }
+        }
+        
+        .welcome-note {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.5rem;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            opacity: 1;
+            transition: opacity 1s;
+        }
+        
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="welcome-note">Touch anywhere to begin...</div>
+    
+    <audio id="bgMusic" loop>
+        <source src="SONG.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced romantic configuration
+            const config = {
+                colors: ['#ff6b81', '#ff4757', '#ff7f50', '#e84393', '#fd79a8', '#ff9ff3'],
+                fonts: [
+                    "'Dancing Script', cursive", 
+                    "'Great Vibes', cursive", 
+                    "'Parisienne', cursive",
+                    "'Arial', sans-serif"
+                ],
+                sizes: [2.5, 3, 3.5, 4],
+                messages: [
+                    "I LOVE YOU", 
+                    "JE T'AIME", 
+                    "TE AMO", 
+                    "ICH LIEBE DICH",
+                    "愛してる",
+                    "사랑해"
+                ],
+                heartEmojis: ['❤️', '💖', '💗', '💓', '💘', '💕']
+            };
+            
+            const music = document.getElementById('bgMusic');
+            music.volume = 0.2;
+            
+            let currentMessage = null;
+            let welcomeNote = document.querySelector('.welcome-note');
+            let firstInteraction = true;
+            
+            function createLoveMessage(x, y) {
+                // Hide welcome note after first interaction
+                if (firstInteraction) {
+                    welcomeNote.classList.add('hidden');
+                    firstInteraction = false;
+                }
+                
+                // Fade out current message if exists
+                if (currentMessage) {
+                    currentMessage.classList.remove('active');
+                    currentMessage.classList.add('fading');
+                    
+                    setTimeout(() => {
+                        if (currentMessage && currentMessage.classList.contains('fading')) {
+                            document.body.removeChild(currentMessage);
+                        }
+                    }, 800);
+                }
+                
+                // Create container for message and effects
+                const container = document.createElement('div');
+                container.className = 'love-container';
+                container.style.left = `${x}px`;
+                container.style.top = `${y}px`;
+                
+                // Create message element
+                const loveMsg = document.createElement('div');
+                loveMsg.className = 'love-message';
+                
+                // Randomize appearance
+                const randomColor = config.colors[Math.floor(Math.random() * config.colors.length)];
+                const randomFont = config.fonts[Math.floor(Math.random() * config.fonts.length)];
+                const randomSize = config.sizes[Math.floor(Math.random() * config.sizes.length)];
+                const randomMessage = config.messages[Math.floor(Math.random() * config.messages.length)];
+                
+                loveMsg.textContent = randomMessage;
+                loveMsg.style.color = randomColor;
+                loveMsg.style.fontFamily = randomFont;
+                loveMsg.style.fontSize = `${randomSize}rem`;
+                
+                container.appendChild(loveMsg);
+                document.body.appendChild(container);
+                
+                // Create heart trail effect
+                createHeartTrail(container, x, y);
+                
+                // Trigger animation
+                setTimeout(() => {
+                    container.classList.add('active');
+                }, 10);
+                
+                currentMessage = container;
+            }
+            
+            function createHeartTrail(container, x, y) {
+                const heartCount = 5 + Math.floor(Math.random() * 10);
+                
+                for (let i = 0; i < heartCount; i++) {
+                    setTimeout(() => {
+                        const heart = document.createElement('div');
+                        heart.className = 'heart-trail';
+                        heart.innerHTML = config.heartEmojis[Math.floor(Math.random() * config.heartEmojis.length)];
+                        
+                        // Random direction and distance
+                        const angle = Math.random() * Math.PI * 2;
+                        const distance = 30 + Math.random() * 70;
+                        const tx = Math.cos(angle) * distance;
+                        const ty = Math.sin(angle) * distance;
+                        
+                        heart.style.setProperty('--tx', `${tx}px`);
+                        heart.style.setProperty('--ty', `${ty}px`);
+                        heart.style.left = '50%';
+                        heart.style.top = '50%';
+                        heart.style.fontSize = `${0.5 + Math.random()}rem`;
+                        
+                        container.appendChild(heart);
+                        
+                        // Animate heart
+                        setTimeout(() => {
+                            heart.style.animation = `heartFloat ${1 + Math.random()}s forwards`;
+                            setTimeout(() => {
+                                if (heart.parentNode) {
+                                    heart.parentNode.removeChild(heart);
+                                }
+                            }, 1000);
+                        }, 10);
+                    }, i * 100);
+                }
+            }
+            
+            function handleInteraction(e) {
+                if (music.paused) {
+                    music.play().catch(e => console.log("Autoplay prevented"));
+                }
+                
+                let clientX, clientY;
+                
+                if (e.type === 'touchstart') {
+                    e.preventDefault();
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+                
+                createLoveMessage(clientX, clientY);
+            }
+            
+            // Event listeners
+            document.addEventListener('click', handleInteraction);
+            document.addEventListener('touchstart', handleInteraction);
+            
+            // Gentle pulse animation for welcome note
+            if (welcomeNote) {
+                setInterval(() => {
+                    welcomeNote.style.transform = `translate(-50%, -50%) scale(${1 + Math.sin(Date.now()/500)*0.05})`;
+                }, 50);
+            }
+        });
+    </script>
+</body>
+</html>
